@@ -1,9 +1,26 @@
 import { supabase } from "./supabase";
 
+// 🔹 Criar usuário + inserir registro na tabela profiles
 export async function signUp(email: string, password: string) {
-  return await supabase.auth.signUp({ email, password });
+  // 1. Criar usuário no Supabase Auth
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  if (error || !data.user) {
+    return { success: false, error };
+  }
+
+  // 2. Criar registro em profiles com status "pending"
+  await supabase.from("profiles").insert([
+    {
+      user_id: data.user.id, // FK para auth.users.id
+      status: "pending",
+    },
+  ]);
+
+  return { success: true, user: data.user, status: "pending" };
 }
 
+// 🔹 Fazer login e verificar status
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -14,20 +31,21 @@ export async function signIn(email: string, password: string) {
     return { success: false, error };
   }
 
-  // Buscar informações extras do usuário (incluindo status)
-  const { data: userRow } = await supabase
-    .from("users")
+  // Buscar status na tabela profiles
+  const { data: profileRow } = await supabase
+    .from("profiles")
     .select("status")
-    .eq("id", data.user.id)
+    .eq("user_id", data.user.id)
     .single();
 
   return {
     success: true,
     user: data.user,
-    status: userRow?.status ?? "pending", // se não tiver, assume "pending"
+    status: profileRow?.status ?? "pending", // fallback para pending
   };
 }
 
+// 🔹 Logout
 export async function signOut() {
   return await supabase.auth.signOut();
 }
