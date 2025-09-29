@@ -37,11 +37,11 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       <div className="flex items-center mb-8">
         <button
           onClick={() => onNavigate('welcome')}
-          className="text-pink-500 hover:text-pink-400 transition-colors"
+          className="text-brand hover:text-brand-dark transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-pink-500 ml-4">Entrar</h1>
+        <h1 className="text-2xl font-bold text-brand ml-4">Entrar</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
@@ -53,7 +53,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
         <div className="space-y-6">
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <Mail className="w-4 h-4 inline mr-2" />
               E-mail
             </label>
@@ -62,13 +62,13 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Digite seu e-mail"
             />
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
               Senha
             </label>
@@ -77,7 +77,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Digite sua senha"
             />
           </div>
@@ -85,7 +85,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
         <button
           type="submit"
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
         >
           Entrar
         </button>
@@ -95,14 +95,14 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
           <button
             type="button"
             onClick={() => onNavigate('register')}
-            className="text-pink-500 hover:text-pink-400 font-medium"
+            className="text-brand hover:text-brand-dark font-medium"
           >
             Criar conta
           </button>
         </p>
       </form>
 
-      <footer className="text-center text-pink-500 mt-6">
+      <footer className="text-center text-brand mt-6">
         Mais um produto exclusivo da My GlobyX 🚀
       </footer>
     </div>

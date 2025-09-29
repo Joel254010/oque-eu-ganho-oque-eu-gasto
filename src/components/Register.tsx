@@ -52,11 +52,11 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
       <div className="flex items-center mb-8">
         <button
           onClick={() => onNavigate('welcome')}
-          className="text-pink-500 hover:text-pink-400 transition-colors"
+          className="text-brand hover:text-brand-dark transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-pink-500 ml-4">Criar Conta</h1>
+        <h1 className="text-2xl font-bold text-brand ml-4">Criar Conta</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
@@ -68,7 +68,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
 
         <div className="space-y-6">
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <User className="w-4 h-4 inline mr-2" />
               Nome
             </label>
@@ -77,13 +77,13 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Digite seu nome"
             />
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <Mail className="w-4 h-4 inline mr-2" />
               E-mail
             </label>
@@ -92,13 +92,13 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Digite seu e-mail"
             />
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
               Senha
             </label>
@@ -107,13 +107,13 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Digite sua senha"
             />
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
               Confirmar Senha
             </label>
@@ -122,7 +122,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
               placeholder="Confirme sua senha"
             />
           </div>
@@ -130,7 +130,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
 
         <button
           type="submit"
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
         >
           Criar Conta
         </button>
@@ -140,14 +140,14 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
           <button
             type="button"
             onClick={() => onNavigate('login')}
-            className="text-pink-500 hover:text-pink-400 font-medium"
+            className="text-brand hover:text-brand-dark font-medium"
           >
             Fazer login
           </button>
         </p>
       </form>
 
-      <footer className="text-center text-pink-500 mt-6">
+      <footer className="text-center text-brand mt-6">
         Mais um produto exclusivo da My GlobyX 🚀
       </footer>
     </div>

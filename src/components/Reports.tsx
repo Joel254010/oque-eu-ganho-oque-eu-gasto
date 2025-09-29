@@ -34,11 +34,11 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
       <div className="flex items-center p-6 border-b border-gray-800">
         <button
           onClick={onBack}
-          className="text-pink-500 hover:text-pink-400 transition-colors"
+          className="text-brand hover:text-brand-dark transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-pink-500 ml-4">Relatórios</h1>
+        <h1 className="text-2xl font-bold text-brand ml-4">Relatórios</h1>
       </div>
 
       {/* Summary Cards */}
@@ -86,7 +86,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
 
       {/* Transaction List */}
       <div className="flex-1 px-6">
-        <h2 className="text-lg font-semibold text-pink-500 mb-4">Histórico de Transações</h2>
+        <h2 className="text-lg font-semibold text-brand mb-4">Histórico de Transações</h2>
         
         {groupedTransactions.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
@@ -125,7 +125,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
         )}
       </div>
 
-      <footer className="text-center text-pink-500 p-6">
+      <footer className="text-center text-brand p-6">
         Mais um produto exclusivo da My GlobyX 🚀
       </footer>
     </div>

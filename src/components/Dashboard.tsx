@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center p-6 border-b border-gray-800">
         <div>
-          <h1 className="text-xl font-bold text-pink-500">Olá, {user?.name}!</h1>
+          <h1 className="text-xl font-bold text-brand">Olá, {user?.name}!</h1>
           <p className="text-gray-400 text-sm">Seu controle financeiro</p>
         </div>
         <button
@@ -101,7 +101,7 @@ const Dashboard: React.FC = () => {
 
       {/* Balance Card */}
       <div className="p-6">
-        <div className="bg-pink-500 rounded-2xl p-6 text-center">
+        <div className="bg-brand rounded-2xl p-6 text-center">
           <p className="text-white/80 text-sm uppercase tracking-wide mb-2">
             Saldo Atual
           </p>
@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
       <div className="px-6 space-y-4">
         <button
           onClick={() => setCurrentView('add-income')}
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
         >
           <TrendingUp className="w-5 h-5 mr-2" />
           Adicionar Receita
@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
 
         <button
           onClick={() => setCurrentView('add-expense')}
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
         >
           <TrendingDown className="w-5 h-5 mr-2" />
           Adicionar Despesa
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
 
       {/* Recent Transactions */}
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-pink-500 mb-4">Últimas Transações</h2>
+        <h2 className="text-lg font-semibold text-brand mb-4">Últimas Transações</h2>
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Plus className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -201,7 +201,7 @@ const Dashboard: React.FC = () => {
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-pink-500 text-white rounded"
+                className="px-4 py-2 bg-brand text-white rounded"
               >
                 Salvar
               </button>
@@ -210,7 +210,7 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <footer className="text-center text-pink-500 p-6">
+      <footer className="text-center text-brand p-6">
         Mais um produto exclusivo da My GlobyX 🚀
       </footer>
     </div>
