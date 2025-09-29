@@ -16,7 +16,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
   const [error, setError] = useState('');
   const { register } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -35,11 +35,14 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
       return;
     }
 
-    if (register(formData.name, formData.email, formData.password)) {
-      alert('Conta criada com sucesso! Faça login para continuar.');
+    // ✅ Agora usamos await
+    const result = await register(formData.name, formData.email, formData.password);
+
+    if (result.success) {
+      alert('Conta criada com sucesso! Aguarde aprovação para fazer login.');
       onNavigate('login');
     } else {
-      setError('Este e-mail já está cadastrado');
+      setError(result.error || 'Este e-mail já está cadastrado');
     }
   };
 

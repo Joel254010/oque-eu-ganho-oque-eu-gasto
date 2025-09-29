@@ -14,7 +14,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   const [error, setError] = useState('');
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -23,8 +23,29 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       return;
     }
 
-    if (!login(formData.email, formData.password)) {
-      setError('E-mail ou senha incorretos');
+    try {
+      // login agora retorna { success, user?, status? }
+      const result = await login(formData.email, formData.password);
+
+      if (!result.success) {
+        if (result.status === 'pending') {
+          setError('Sua conta ainda não foi aprovada. Aguarde a liberação.');
+        } else {
+          setError('E-mail ou senha incorretos');
+        }
+        return;
+      }
+
+      if (result.status !== 'approved') {
+        setError('Sua conta ainda não foi aprovada. Aguarde a liberação.');
+        return;
+      }
+
+      // ✅ Se chegou aqui, usuário aprovado
+      // O AuthContext cuida de salvar sessão e redirecionar
+    } catch (err) {
+      console.error(err);
+      setError('Erro inesperado. Tente novamente mais tarde.');
     }
   };
 

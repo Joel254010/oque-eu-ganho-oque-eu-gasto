@@ -5,7 +5,27 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signIn(email: string, password: string) {
-  return await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error || !data.user) {
+    return { success: false, error };
+  }
+
+  // Buscar informações extras do usuário (incluindo status)
+  const { data: userRow } = await supabase
+    .from("users")
+    .select("status")
+    .eq("id", data.user.id)
+    .single();
+
+  return {
+    success: true,
+    user: data.user,
+    status: userRow?.status ?? "pending", // se não tiver, assume "pending"
+  };
 }
 
 export async function signOut() {
