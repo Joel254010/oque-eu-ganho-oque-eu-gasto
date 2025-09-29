@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabase";
 
 interface User {
   id: string;
-  name: string;
   email: string;
   status: "pending" | "approved" | "rejected";
 }
@@ -19,22 +18,29 @@ const UserApproval: React.FC<UserApprovalProps> = ({ onBack }) => {
 
   const fetchUsers = async () => {
     setLoading(true);
+
     const { data, error } = await supabase
-      .from("users")
-      .select("*")
+      .from("profiles")
+      .select("id, status, user:auth.users(email)")
       .eq("status", "pending");
 
     if (error) {
       console.error("Erro ao carregar usuários:", error.message);
     } else {
-      setUsers(data as User[]);
+      const mapped = (data || []).map((row: any) => ({
+        id: row.id,
+        status: row.status,
+        email: row.user?.email || "Sem e-mail",
+      }));
+      setUsers(mapped);
     }
+
     setLoading(false);
   };
 
   const updateUserStatus = async (id: string, status: "approved" | "rejected") => {
     const { error } = await supabase
-      .from("users")
+      .from("profiles")
       .update({ status })
       .eq("id", id);
 
@@ -79,8 +85,8 @@ const UserApproval: React.FC<UserApprovalProps> = ({ onBack }) => {
               className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
             >
               <div>
-                <p className="font-bold">{user.name}</p>
-                <p className="text-gray-400 text-sm">{user.email}</p>
+                <p className="font-bold">{user.email}</p>
+                <p className="text-gray-400 text-sm">Status: {user.status}</p>
               </div>
               <div className="flex space-x-2">
                 <button
