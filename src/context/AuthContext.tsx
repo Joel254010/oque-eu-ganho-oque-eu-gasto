@@ -33,22 +33,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    // Verifica se já existe sessão salva pelo Supabase
-    const session = supabase.auth.getSession();
-    session.then(async ({ data }) => {
-      if (data.session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, email, name, status')
-          .eq('id', data.session.user.id)
-          .single();
+  const fetchSession = async () => {
+    const { data } = await supabase.auth.getSession();
 
-        if (profile) {
-          setUser(profile as UserProfile);
-        }
+    if (data.session?.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, email, name, status')
+        .eq('id', data.session.user.id)
+        .single();
+
+      if (profile) {
+        setUser(profile as UserProfile);
       }
-    });
-  }, []);
+    }
+  };
+
+  fetchSession();
+}, []);
 
   const register = async (name: string, email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
