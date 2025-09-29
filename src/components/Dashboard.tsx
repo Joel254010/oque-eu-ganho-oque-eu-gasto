@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Plus, TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import { LogOut, Plus, TrendingUp, TrendingDown, BarChart3, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Transaction } from '../types';
-import { getTransactions, calculateBalance, formatCurrency } from '../utils/storage';
+import { getTransactions, calculateBalance, formatCurrency, deleteTransaction, updateTransaction } from '../utils/storage';
 import AddTransaction from './AddTransaction';
 import Reports from './Reports';
 
@@ -11,6 +11,7 @@ const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'add-income' | 'add-expense' | 'reports'>('dashboard');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState(0);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -25,6 +26,21 @@ const Dashboard: React.FC = () => {
       const userTransactions = getTransactions(user.id);
       setTransactions(userTransactions);
       setBalance(calculateBalance(userTransactions));
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Tem certeza que deseja apagar esta transação?")) {
+      deleteTransaction(user!.id, id);
+      refreshTransactions();
+    }
+  };
+
+  const handleEdit = (transaction: Transaction) => {
+    const novoValor = prompt("Digite o novo valor:", transaction.amount.toString());
+    if (novoValor) {
+      updateTransaction(user!.id, { ...transaction, amount: parseFloat(novoValor) });
+      refreshTransactions();
     }
   };
 
@@ -134,13 +150,21 @@ const Dashboard: React.FC = () => {
                     {new Date(transaction.date).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
-                <p
-                  className={`font-bold ${
-                    transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
-                  }`}
-                >
-                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                </p>
+                <div className="flex items-center space-x-4">
+                  <p
+                    className={`font-bold ${
+                      transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
+                    }`}
+                  >
+                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  </p>
+                  <button onClick={() => handleEdit(transaction)} className="text-blue-400 hover:text-blue-600">
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:text-red-600">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
