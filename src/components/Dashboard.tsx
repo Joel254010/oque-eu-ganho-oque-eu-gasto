@@ -12,6 +12,7 @@ const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState(0);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [newAmount, setNewAmount] = useState<string>("");
 
   useEffect(() => {
     if (user) {
@@ -37,10 +38,19 @@ const Dashboard: React.FC = () => {
   };
 
   const handleEdit = (transaction: Transaction) => {
-    const novoValor = prompt("Digite o novo valor:", transaction.amount.toString());
-    if (novoValor) {
-      updateTransaction(user!.id, { ...transaction, amount: parseFloat(novoValor) });
+    setEditingTransaction(transaction);
+    setNewAmount(transaction.amount.toString());
+  };
+
+  const handleSaveEdit = () => {
+    if (editingTransaction && newAmount) {
+      updateTransaction(user!.id, {
+        ...editingTransaction,
+        amount: parseFloat(newAmount),
+      });
       refreshTransactions();
+      setEditingTransaction(null);
+      setNewAmount("");
     }
   };
 
@@ -170,6 +180,35 @@ const Dashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-96 text-black">
+            <h2 className="text-xl font-bold mb-4">Editar Transação</h2>
+            <input
+              type="number"
+              value={newAmount}
+              onChange={(e) => setNewAmount(e.target.value)}
+              className="w-full border p-2 mb-4"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setEditingTransaction(null)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-pink-500 text-white rounded"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="text-center text-pink-500 p-6">
         Mais um produto exclusivo da My GlobyX 🚀
