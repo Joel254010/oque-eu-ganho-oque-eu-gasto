@@ -60,11 +60,11 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
       <div className="flex items-center mb-8">
         <button
           onClick={onBack}
-          className="text-pink-500 hover:text-pink-400 transition-colors"
+          className="text-violet-500 hover:text-violet-400 transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-pink-500 ml-4">{title}</h1>
+        <h1 className="text-2xl font-bold text-violet-500 ml-4">{title}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
@@ -76,7 +76,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
         <div className="space-y-6">
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-violet-500 mb-2 font-medium">
               Valor (R$)
             </label>
             <input
@@ -86,20 +86,20 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
               onChange={handleChange}
               step="0.01"
               min="0"
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
               placeholder="0,00"
             />
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-violet-500 mb-2 font-medium">
               {type === 'income' ? 'Tipo' : 'Categoria'}
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
             >
               <option value="">Selecione uma opção</option>
               {categories.map((category) => (
@@ -111,7 +111,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
           </div>
 
           <div>
-            <label className="block text-pink-500 mb-2 font-medium">
+            <label className="block text-violet-500 mb-2 font-medium">
               Data
             </label>
             <input
@@ -119,21 +119,21 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
               name="date"
               value={formData.date}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-pink-500 focus:outline-none transition-colors"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300 flex items-center justify-center"
+          className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300 flex items-center justify-center"
         >
           <Save className="w-5 h-5 mr-2" />
           Salvar {type === 'income' ? 'Receita' : 'Despesa'}
         </button>
       </form>
 
-      <footer className="text-center text-pink-500 mt-6">
+      <footer className="text-center text-violet-500 mt-6">
         Mais um produto exclusivo da My GlobyX 🚀
       </footer>
     </div>
