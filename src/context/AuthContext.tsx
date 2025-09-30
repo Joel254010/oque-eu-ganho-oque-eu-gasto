@@ -1,17 +1,18 @@
-import React, {
+// src/context/AuthContext.tsx
+import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
-} from "react";
-import { supabase } from "../lib/supabase";
+} from 'react';
+import { supabase } from '../lib/supabase';
 
 type UserProfile = {
   id: string;
   email: string;
   name?: string;
-  status: "approved" | "pending";
+  status: 'approved' | 'pending';
 };
 
 interface AuthContextType {
@@ -24,7 +25,7 @@ interface AuthContextType {
     name: string,
     email: string,
     password: string
-  ) => Promise<{ success: boolean; error?: string; user?: any }>;
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -33,7 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
@@ -42,7 +43,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -51,9 +52,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (data.session?.user) {
         const { data: profile } = await supabase
-          .from("profiles")
-          .select("id, email, name, status")
-          .eq("user_id", data.session.user.id) // ⚠️ Correção aqui
+          .from('profiles')
+          .select('id, email, name, status')
+          .eq('id', data.session.user.id)
           .single();
 
         if (profile) {
@@ -69,26 +70,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     name: string,
     email: string,
     password: string
-  ) => {
+  ): Promise<{ success: boolean; error?: string }> => {
     const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (error || !data.user) {
-      return { success: false, error: error?.message };
+    if (error) {
+      return { success: false, error: error.message };
     }
 
-    await supabase.from("profiles").insert([
-      {
-        user_id: data.user.id, // ⚠️ Correção aqui
-        email,
-        name,
-        status: "pending",
-      },
-    ]);
+    if (data.user) {
+      await supabase.from('profiles').insert([
+        { id: data.user.id, email, name, status: 'pending' },
+      ]);
+    }
 
-    return { success: true, user: data.user }; // ⚠️ Agora retorna o user
+    return { success: true };
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; user?: UserProfile; status?: string }> => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -99,9 +100,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, email, name, status")
-      .eq("user_id", data.user.id) // ⚠️ Correção aqui
+      .from('profiles')
+      .select('id, email, name, status')
+      .eq('id', data.user.id)
       .single();
 
     if (profileError || !profile) {
