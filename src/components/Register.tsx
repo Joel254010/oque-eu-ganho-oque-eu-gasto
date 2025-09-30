@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, User, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase'; // 🔹 IMPORTANTE: ajuste o caminho se necessário
 
 interface RegisterProps {
   onNavigate: (page: 'welcome' | 'login') => void;
@@ -35,10 +36,39 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
       return;
     }
 
-    // ✅ Agora usamos await
+    // 🔹 Etapa 1: Criação de conta via AuthContext
     const result = await register(formData.name, formData.email, formData.password);
 
     if (result.success) {
+      try {
+        // 🔹 Etapa 2: Buscar o ID do usuário criado
+        const {
+          data: { user },
+          error: authError
+        } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+          console.error("Erro ao obter usuário:", authError?.message);
+        } else {
+          // 🔹 Etapa 3: Inserir na tabela profiles com status 'pending'
+          const { error: insertError } = await supabase.from("profiles").insert([
+            {
+              user_id: user.id,
+              email: formData.email,
+              status: "pending",
+            },
+          ]);
+
+          if (insertError) {
+            console.error("Erro ao inserir no banco:", insertError.message);
+          } else {
+            console.log("Usuário adicionado à tabela profiles");
+          }
+        }
+      } catch (err) {
+        console.error("Erro inesperado:", err);
+      }
+
       alert('Conta criada com sucesso! Aguarde aprovação para fazer login.');
       onNavigate('login');
     } else {
