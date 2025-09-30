@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -11,8 +10,6 @@ import { supabase } from '../lib/supabase';
 type UserProfile = {
   id: string;
   email: string;
-  name?: string;
-  status: 'approved' | 'pending';
 };
 
 interface AuthContextType {
@@ -20,7 +17,7 @@ interface AuthContextType {
   login: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; user?: UserProfile; status?: string }>;
+  ) => Promise<{ success: boolean; user?: UserProfile }>;
   register: (
     name: string,
     email: string,
@@ -51,15 +48,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { data } = await supabase.auth.getSession();
 
       if (data.session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, email, name, status')
-          .eq('id', data.session.user.id)
-          .single();
-
-        if (profile) {
-          setUser(profile as UserProfile);
-        }
+        setUser({
+          id: data.session.user.id,
+          email: data.session.user.email ?? '',
+        });
       }
     };
 
@@ -71,16 +63,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
 
     if (error) {
       return { success: false, error: error.message };
-    }
-
-    if (data.user) {
-      await supabase.from('profiles').insert([
-        { id: data.user.id, email, name, status: 'pending' },
-      ]);
     }
 
     return { success: true };
@@ -89,7 +83,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (
     email: string,
     password: string
-  ): Promise<{ success: boolean; user?: UserProfile; status?: string }> => {
+  ): Promise<{ success: boolean; user?: UserProfile }> => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -99,23 +93,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return { success: false };
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id, email, name, status')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profileError || !profile) {
-      return { success: false };
-    }
-
-    setUser(profile as UserProfile);
-
-    return {
-      success: true,
-      user: profile as UserProfile,
-      status: profile.status,
+    const currentUser: UserProfile = {
+      id: data.user.id,
+      email: data.user.email ?? '',
     };
+
+    setUser(currentUser);
+    return { success: true, user: currentUser };
   };
 
   const logout = async () => {

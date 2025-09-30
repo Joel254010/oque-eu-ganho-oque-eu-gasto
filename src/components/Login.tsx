@@ -1,3 +1,4 @@
+// src/pages/Login.tsx
 import React, { useState } from 'react';
 import { ArrowLeft, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -24,25 +25,14 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     }
 
     try {
-      // login agora retorna { success, user?, status? }
       const result = await login(formData.email, formData.password);
 
       if (!result.success) {
-        if (result.status === 'pending') {
-          setError('Sua conta ainda não foi aprovada. Aguarde a liberação.');
-        } else {
-          setError('E-mail ou senha incorretos');
-        }
+        setError('E-mail ou senha incorretos');
         return;
       }
 
-      if (result.status !== 'approved') {
-        setError('Sua conta ainda não foi aprovada. Aguarde a liberação.');
-        return;
-      }
-
-      // ✅ Se chegou aqui, usuário aprovado
-      // O AuthContext cuida de salvar sessão e redirecionar
+      // ✅ Login bem-sucedido, AuthContext cuida da sessão
     } catch (err) {
       console.error(err);
       setError('Erro inesperado. Tente novamente mais tarde.');

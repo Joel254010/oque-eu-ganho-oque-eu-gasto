@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center p-6 border-b border-gray-800">
         <div>
-          <h1 className="text-xl font-bold text-brand">Olá, {user?.name}!</h1>
+          <h1 className="text-xl font-bold text-brand">Olá, {user?.email}!</h1>
           <p className="text-gray-400 text-sm">Seu controle financeiro</p>
         </div>
         <button
