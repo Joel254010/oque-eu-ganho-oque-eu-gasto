@@ -37,7 +37,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
     }
 
     // 🔹 Criação de conta via AuthContext (supabase.auth.signUp)
-    const result = await register(formData.name, formData.email, formData.password);
+    const result = await register(formData.email, formData.password);
 
     if (result.success) {
       alert('Conta criada com sucesso! Agora você já pode fazer login.');
