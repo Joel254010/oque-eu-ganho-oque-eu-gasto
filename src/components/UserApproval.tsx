@@ -20,9 +20,9 @@ const UserApproval: React.FC<UserApprovalProps> = ({ onBack }) => {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("profiles")
-      .select("id, status, user:auth.users(email)")
-      .eq("status", "pending");
+  .from("profiles")
+  .select("id, status, email")
+  .eq("status", "pending");
 
     if (error) {
       console.error("Erro ao carregar usuários:", error.message);
