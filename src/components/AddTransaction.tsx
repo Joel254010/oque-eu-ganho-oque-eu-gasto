@@ -15,7 +15,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0] // YYYY-MM-DD
   });
   const [error, setError] = useState('');
 
@@ -39,13 +39,15 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
     if (!user) return;
 
-    // 🔹 Salva no Supabase
+    // 🔹 Corrigindo para salvar sempre no formato "YYYY-MM-DDT00:00:00"
+    const normalizedDate = `${formData.date}T00:00:00`;
+
     const ok = await saveTransaction({
       userId: user.id,
       type,
       amount,
       category: formData.category,
-      date: formData.date
+      date: normalizedDate
     });
 
     if (!ok) {
