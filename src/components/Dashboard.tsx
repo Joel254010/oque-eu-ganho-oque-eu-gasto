@@ -90,7 +90,6 @@ const Dashboard: React.FC = () => {
   if (currentView === 'reports') {
     return (
       <Reports
-        transactions={transactions}
         onBack={() => setCurrentView('dashboard')}
       />
     );

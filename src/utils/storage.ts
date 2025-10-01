@@ -18,6 +18,28 @@ export const getTransactions = async (userId: string): Promise<Transaction[]> =>
   return data as Transaction[];
 };
 
+// 🔹 Buscar transações por intervalo de datas
+export const getTransactionsByDate = async (
+  userId: string,
+  startDate: string,
+  endDate: string
+): Promise<Transaction[]> => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('date', `${startDate}T00:00:00`)
+    .lte('date', `${endDate}T23:59:59`)
+    .order('date', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar transações por data:", error.message);
+    return [];
+  }
+
+  return data as Transaction[];
+};
+
 // 🔹 Salvar uma nova transação
 export const saveTransaction = async (
   transaction: Omit<Transaction, 'id' | 'createdAt'>

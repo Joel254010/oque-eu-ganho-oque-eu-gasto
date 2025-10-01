@@ -1,33 +1,61 @@
-import React, { useMemo } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, TrendingUp, TrendingDown, Wallet, FileDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { Transaction } from '../types';
-import { calculateBalance, formatCurrency } from '../utils/storage';
+import { calculateBalance, formatCurrency, getTransactionsByDate } from '../utils/storage';
 
 interface ReportsProps {
-  transactions: Transaction[];
   onBack: () => void;
 }
 
-const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
-  const { totalIncome, totalExpenses, balance, groupedTransactions } = useMemo(() => {
-    const income = transactions.filter(t => t.type === 'income');
-    const expenses = transactions.filter(t => t.type === 'expense');
-    
-    const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
-    const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
-    const balance = calculateBalance(transactions);
+const Reports: React.FC<ReportsProps> = ({ onBack }) => {
+  const { user } = useAuth();
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-    const sorted = [...transactions].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    return {
-      totalIncome,
-      totalExpenses,
-      balance,
-      groupedTransactions: sorted
+  // 🔹 Buscar transações quando mudar filtro
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user && startDate && endDate) {
+        const data = await getTransactionsByDate(user.id, startDate, endDate);
+        setTransactions(data);
+      } else {
+        setTransactions([]); // se não escolher intervalo, não mostra nada
+      }
     };
-  }, [transactions]);
+    fetchData();
+  }, [user, startDate, endDate]);
+
+  // 🔹 Cálculos
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const balance = calculateBalance(transactions);
+
+  // 🔹 Exporta CSV
+  const handleExportCSV = () => {
+    if (transactions.length === 0) return;
+
+    const header = ["Data", "Categoria", "Tipo", "Valor"];
+    const rows = transactions.map(t => [
+      new Date(t.date).toLocaleDateString("pt-BR"),
+      t.category,
+      t.type === "income" ? "Receita" : "Despesa",
+      t.amount.toFixed(2).replace(".", ",")
+    ]);
+
+    const csvContent = [header, ...rows]
+      .map(e => e.join(";"))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `relatorio-${startDate || "inicio"}-a-${endDate || "fim"}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -39,6 +67,29 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-2xl font-bold text-brand ml-4">Relatórios</h1>
+      </div>
+
+      {/* Filtros */}
+      <div className="px-6 mt-4 flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+        <input
+          type="date"
+          value={startDate}
+          onChange={e => setStartDate(e.target.value)}
+          className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={e => setEndDate(e.target.value)}
+          className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white"
+        />
+        <button
+          onClick={handleExportCSV}
+          className="bg-violet-600 hover:bg-violet-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center"
+        >
+          <FileDown className="w-5 h-5 mr-2" />
+          Exportar CSV
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -68,9 +119,7 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
             </div>
           </div>
 
-          <div className={`${
-            balance >= 0 ? 'bg-green-500' : 'bg-red-500'
-          } rounded-lg p-4`}>
+          <div className={`${balance >= 0 ? 'bg-green-500' : 'bg-red-500'} rounded-lg p-4`}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white text-sm font-medium">Saldo Final</p>
@@ -88,14 +137,14 @@ const Reports: React.FC<ReportsProps> = ({ transactions, onBack }) => {
       <div className="flex-1 px-6">
         <h2 className="text-lg font-semibold text-brand mb-4">Histórico de Transações</h2>
         
-        {groupedTransactions.length === 0 ? (
+        {transactions.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Wallet className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p>Nenhuma transação encontrada</p>
           </div>
         ) : (
           <div className="space-y-3 pb-6">
-            {groupedTransactions.map((transaction) => (
+            {transactions.map((transaction) => (
               <div
                 key={transaction.id}
                 className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
