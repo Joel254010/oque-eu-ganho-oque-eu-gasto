@@ -4,6 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { Transaction } from '../types';
 import { calculateBalance, formatCurrency, getTransactionsByDate } from '../utils/storage';
 
+// PDF libs (forçando ignorar TS)
+// @ts-ignore
+import jsPDF from "jspdf";
+// @ts-ignore
+import autoTable from "jspdf-autotable";
+
 interface ReportsProps {
   onBack: () => void;
 }
@@ -33,7 +39,7 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const balance = calculateBalance(transactions);
 
-  // 🔹 Exporta CSV com BOM + datas formatadas
+  // 🔹 Exporta CSV
   const handleExportCSV = () => {
     if (transactions.length === 0) return;
 
@@ -49,7 +55,6 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
       .map(e => e.join(";"))
       .join("\n");
 
-    // 🔹 Força Excel abrir em UTF-8
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -60,6 +65,47 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // 🔹 Exporta PDF
+  const handleExportPDF = () => {
+    if (transactions.length === 0) return;
+
+    const doc = new jsPDF();
+
+    // Título
+    doc.setFontSize(16);
+    doc.text("Relatório Financeiro - My GlobyX", 14, 20);
+
+    // Período
+    doc.setFontSize(10);
+    doc.text(
+      `Período: ${startDate || "início"} até ${endDate || "fim"}`,
+      14,
+      28
+    );
+
+    // Tabela
+    autoTable(doc, {
+      startY: 35,
+      head: [["Data", "Categoria", "Tipo", "Valor"]],
+      body: transactions.map((t) => [
+        new Date(t.date).toLocaleDateString("pt-BR"),
+        t.category,
+        t.type === "income" ? "Receita" : "Despesa",
+        formatCurrency(t.amount),
+      ]),
+    });
+
+    // Totais (usando cast para ignorar TS)
+    doc.text(
+      `Receitas: ${formatCurrency(totalIncome)} | Despesas: ${formatCurrency(totalExpenses)} | Saldo: ${formatCurrency(balance)}`,
+      14,
+      (doc as any).lastAutoTable.finalY + 10
+    );
+
+    // Baixar
+    doc.save(`relatorio-${startDate || "inicio"}-a-${endDate || "fim"}.pdf`);
   };
 
   return (
@@ -94,6 +140,13 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
         >
           <FileDown className="w-5 h-5 mr-2" />
           Exportar CSV
+        </button>
+        <button
+          onClick={handleExportPDF}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center"
+        >
+          <FileDown className="w-5 h-5 mr-2" />
+          Exportar PDF
         </button>
       </div>
 
