@@ -33,13 +33,13 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const balance = calculateBalance(transactions);
 
-  // 🔹 Exporta CSV
+  // 🔹 Exporta CSV com BOM + datas formatadas
   const handleExportCSV = () => {
     if (transactions.length === 0) return;
 
     const header = ["Data", "Categoria", "Tipo", "Valor"];
     const rows = transactions.map(t => [
-      new Date(t.date).toLocaleDateString("pt-BR"),
+      new Date(t.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }),
       t.category,
       t.type === "income" ? "Receita" : "Despesa",
       t.amount.toFixed(2).replace(".", ",")
@@ -49,7 +49,8 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
       .map(e => e.join(";"))
       .join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    // 🔹 Força Excel abrir em UTF-8
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.setAttribute(
