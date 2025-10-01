@@ -39,8 +39,8 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
     if (!user) return;
 
-    // 🔹 Corrigindo para salvar sempre no formato "YYYY-MM-DDT00:00:00"
-    const normalizedDate = `${formData.date}T00:00:00`;
+    // 🔹 Corrigindo para salvar com hora "meio-dia" (evita problema de UTC -3 cair no dia anterior)
+    const normalizedDate = `${formData.date}T12:00:00`;
 
     const ok = await saveTransaction({
       userId: user.id,
