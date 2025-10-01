@@ -40,7 +40,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
     const result = await register(formData.email, formData.password, formData.name);
 
     if (result.success) {
-      alert('Conta criada com sucesso! Agora você já pode fazer login.');
+      alert('Cadastro realizado! Confirme seu cadastro no seu e-mail antes de acessar.');
       onNavigate('login');
     } else {
       setError(result.error || 'Este e-mail já está cadastrado');
