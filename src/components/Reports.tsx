@@ -14,15 +14,16 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
   const [endDate, setEndDate] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  // 🔹 Buscar transações quando mudar filtro
+  // 🔹 Buscar transações (com ou sem filtro de datas)
   useEffect(() => {
     const fetchData = async () => {
-      if (user && startDate && endDate) {
-        const data = await getTransactionsByDate(user.id, startDate, endDate);
-        setTransactions(data);
-      } else {
-        setTransactions([]); // se não escolher intervalo, não mostra nada
-      }
+      if (!user) return;
+
+      const start = startDate || "2000-01-01"; // fallback: início remoto
+      const end = endDate || new Date().toISOString().split("T")[0]; // fallback: hoje
+
+      const data = await getTransactionsByDate(user.id, start, end);
+      setTransactions(data);
     };
     fetchData();
   }, [user, startDate, endDate]);
@@ -51,7 +52,10 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", `relatorio-${startDate || "inicio"}-a-${endDate || "fim"}.csv`);
+    link.setAttribute(
+      "download",
+      `relatorio-${startDate || "inicio"}-a-${endDate || "fim"}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -157,7 +161,8 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
                         transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
                       }`}
                     >
-                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      {transaction.type === 'income' ? '+' : '-'}
+                      {formatCurrency(transaction.amount)}
                     </p>
                   </div>
                   <p className="text-gray-400 text-sm mt-1">
