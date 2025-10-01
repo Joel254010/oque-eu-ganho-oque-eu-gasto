@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { LogOut, Plus, TrendingUp, TrendingDown, BarChart3, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Transaction } from '../types';
-import { getTransactions, calculateBalance, formatCurrency, deleteTransaction, updateTransaction } from '../utils/storage';
+import { 
+  getTransactions, 
+  calculateBalance, 
+  formatCurrency, 
+  deleteTransaction, 
+  updateTransaction 
+} from '../utils/storage';
 import AddTransaction from './AddTransaction';
 import Reports from './Reports';
 
@@ -14,41 +20,48 @@ const Dashboard: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [newAmount, setNewAmount] = useState<string>("");
 
+  // 🔹 Buscar transações ao carregar
   useEffect(() => {
     if (user) {
-      const userTransactions = getTransactions(user.id);
-      setTransactions(userTransactions);
-      setBalance(calculateBalance(userTransactions));
+      refreshTransactions();
     }
   }, [user]);
 
-  const refreshTransactions = () => {
+  // 🔹 Recarregar transações
+  const refreshTransactions = async () => {
     if (user) {
-      const userTransactions = getTransactions(user.id);
+      const userTransactions = await getTransactions(user.id);
       setTransactions(userTransactions);
       setBalance(calculateBalance(userTransactions));
     }
   };
 
-  const handleDelete = (id: string) => {
+  // 🔹 Excluir transação
+  const handleDelete = async (id: string) => {
     if (window.confirm("Tem certeza que deseja apagar esta transação?")) {
-      deleteTransaction(user!.id, id);
-      refreshTransactions();
+      const ok = await deleteTransaction(user!.id, id);
+      if (ok) {
+        await refreshTransactions();
+      }
     }
   };
 
+  // 🔹 Editar transação
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
     setNewAmount(transaction.amount.toString());
   };
 
-  const handleSaveEdit = () => {
+  // 🔹 Salvar edição
+  const handleSaveEdit = async () => {
     if (editingTransaction && newAmount) {
-      updateTransaction(user!.id, {
+      const ok = await updateTransaction(user!.id, {
         ...editingTransaction,
         amount: parseFloat(newAmount),
       });
-      refreshTransactions();
+      if (ok) {
+        await refreshTransactions();
+      }
       setEditingTransaction(null);
       setNewAmount("");
     }
@@ -220,4 +233,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

@@ -1,48 +1,92 @@
+// src/utils/storage.ts
 import { Transaction } from '../types';
+import { supabase } from '../lib/supabase';
 
-export const getTransactions = (userId: string): Transaction[] => {
-  const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-  return transactions.filter((t: Transaction) => t.userId === userId);
-};
+// 🔹 Buscar todas as transações do usuário
+export const getTransactions = async (userId: string): Promise<Transaction[]> => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('date', { ascending: false });
 
-export const saveTransaction = (transaction: Omit<Transaction, 'id' | 'createdAt'>): void => {
-  const transactions: Transaction[] = JSON.parse(localStorage.getItem('transactions') || '[]');
-  
-  const newTransaction: Transaction = {
-    ...transaction,
-    id: Date.now().toString(),
-    createdAt: new Date().toISOString()
-  };
-
-  transactions.push(newTransaction);
-  localStorage.setItem('transactions', JSON.stringify(transactions));
-};
-
-export const deleteTransaction = (userId: string, id: string): void => {
-  let transactions: Transaction[] = JSON.parse(localStorage.getItem('transactions') || '[]');
-  // mantém apenas as que NÃO têm o id informado
-  transactions = transactions.filter((t) => !(t.userId === userId && t.id === id));
-  localStorage.setItem('transactions', JSON.stringify(transactions));
-};
-
-export const updateTransaction = (userId: string, updated: Transaction): void => {
-  const transactions: Transaction[] = JSON.parse(localStorage.getItem('transactions') || '[]');
-  const index = transactions.findIndex((t) => t.userId === userId && t.id === updated.id);
-
-  if (index !== -1) {
-    transactions[index] = { ...transactions[index], ...updated };
-    localStorage.setItem('transactions', JSON.stringify(transactions));
+  if (error) {
+    console.error("Erro ao buscar transações:", error.message);
+    return [];
   }
+
+  return data as Transaction[];
 };
 
+// 🔹 Salvar uma nova transação
+export const saveTransaction = async (
+  transaction: Omit<Transaction, 'id' | 'createdAt'>
+): Promise<boolean> => {
+  const { error } = await supabase.from('transactions').insert([
+    {
+      user_id: transaction.userId,
+      type: transaction.type,
+      category: transaction.category,
+      amount: transaction.amount,
+      date: transaction.date || new Date().toISOString(),
+    },
+  ]);
+
+  if (error) {
+    console.error("Erro ao salvar transação:", error.message);
+    return false;
+  }
+
+  return true;
+};
+
+// 🔹 Deletar transação por ID
+export const deleteTransaction = async (userId: string, id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('user_id', userId)
+    .eq('id', id);
+
+  if (error) {
+    console.error("Erro ao deletar transação:", error.message);
+    return false;
+  }
+
+  return true;
+};
+
+// 🔹 Atualizar transação
+export const updateTransaction = async (userId: string, updated: Transaction): Promise<boolean> => {
+  const { error } = await supabase
+    .from('transactions')
+    .update({
+      type: updated.type,
+      category: updated.category,
+      amount: updated.amount,
+      date: updated.date,
+    })
+    .eq('user_id', userId)
+    .eq('id', updated.id);
+
+  if (error) {
+    console.error("Erro ao atualizar transação:", error.message);
+    return false;
+  }
+
+  return true;
+};
+
+// 🔹 Calcular saldo
 export const calculateBalance = (transactions: Transaction[]): number => {
   return transactions.reduce((total, transaction) => {
-    return transaction.type === 'income' 
-      ? total + transaction.amount 
+    return transaction.type === 'income'
+      ? total + transaction.amount
       : total - transaction.amount;
   }, 0);
 };
 
+// 🔹 Formatar moeda
 export const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',

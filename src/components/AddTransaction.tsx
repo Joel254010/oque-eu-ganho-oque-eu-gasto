@@ -22,7 +22,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
   const categories = type === 'income' ? INCOME_TYPES : EXPENSE_CATEGORIES;
   const title = type === 'income' ? 'Adicionar Receita' : 'Adicionar Despesa';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -39,7 +39,8 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
     if (!user) return;
 
-    saveTransaction({
+    // 🔹 Salva no Supabase
+    const ok = await saveTransaction({
       userId: user.id,
       type,
       amount,
@@ -47,7 +48,12 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
       date: formData.date
     });
 
-    onSave();
+    if (!ok) {
+      setError('Erro ao salvar transação');
+      return;
+    }
+
+    await onSave();
     onBack();
   };
 
