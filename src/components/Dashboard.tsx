@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Plus, TrendingUp, TrendingDown, BarChart3, Pencil, Trash2 } from 'lucide-react';
+import {
+  LogOut,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Transaction } from '../types';
-import { 
-  getTransactions, 
-  calculateBalance, 
-  formatCurrency, 
-  deleteTransaction, 
-  updateTransaction 
+import {
+  getTransactions,
+  calculateBalance,
+  formatCurrency,
+  deleteTransaction,
+  updateTransaction,
 } from '../utils/storage';
 import AddTransaction from './AddTransaction';
 import Reports from './Reports';
@@ -31,7 +39,8 @@ const Dashboard: React.FC = () => {
   const refreshTransactions = async () => {
     if (user) {
       const userTransactions = await getTransactions(user.id);
-      setTransactions(userTransactions);
+      const sortedTransactions = userTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setTransactions(sortedTransactions);
       setBalance(calculateBalance(userTransactions));
     }
   };
@@ -67,6 +76,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // 🔹 Navegações para adicionar/relatórios
   if (currentView === 'add-income') {
     return (
       <AddTransaction
@@ -88,11 +98,7 @@ const Dashboard: React.FC = () => {
   }
 
   if (currentView === 'reports') {
-    return (
-      <Reports
-        onBack={() => setCurrentView('dashboard')}
-      />
-    );
+    return <Reports onBack={() => setCurrentView('dashboard')} />;
   }
 
   return (
@@ -131,30 +137,27 @@ const Dashboard: React.FC = () => {
           onClick={() => setCurrentView('add-income')}
           className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
         >
-          <TrendingUp className="w-5 h-5 mr-2" />
-          Adicionar Receita
+          <TrendingUp className="w-5 h-5 mr-2" /> Adicionar Receita
         </button>
-
         <button
           onClick={() => setCurrentView('add-expense')}
           className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
         >
-          <TrendingDown className="w-5 h-5 mr-2" />
-          Adicionar Despesa
+          <TrendingDown className="w-5 h-5 mr-2" /> Adicionar Despesa
         </button>
-
         <button
           onClick={() => setCurrentView('reports')}
           className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
         >
-          <BarChart3 className="w-5 h-5 mr-2" />
-          Ver Relatórios
+          <BarChart3 className="w-5 h-5 mr-2" /> Ver Relatórios
         </button>
       </div>
 
       {/* Recent Transactions */}
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-brand mb-4">Últimas Transações</h2>
+        <h2 className="text-lg font-semibold text-brand mb-4">
+          Últimas Transações
+        </h2>
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Plus className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -163,7 +166,7 @@ const Dashboard: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {transactions.slice(-5).reverse().map((transaction) => (
+            {transactions.slice(0, 5).map((transaction) => (
               <div
                 key={transaction.id}
                 className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
@@ -180,13 +183,18 @@ const Dashboard: React.FC = () => {
                       transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
                     }`}
                   >
-                    {transaction.type === 'income' ? '+' : '-'}
-                    {formatCurrency(transaction.amount)}
+                    {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                   </p>
-                  <button onClick={() => handleEdit(transaction)} className="text-blue-400 hover:text-blue-600">
+                  <button
+                    onClick={() => handleEdit(transaction)}
+                    className="text-blue-400 hover:text-blue-600"
+                  >
                     <Pencil className="w-5 h-5" />
                   </button>
-                  <button onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:text-red-600">
+                  <button
+                    onClick={() => handleDelete(transaction.id)}
+                    className="text-red-400 hover:text-red-600"
+                  >
                     <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
