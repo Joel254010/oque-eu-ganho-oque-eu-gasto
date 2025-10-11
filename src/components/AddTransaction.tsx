@@ -15,9 +15,10 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
   const [formData, setFormData] = useState({
     amount: '',
     category: '',
-    date: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+    date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
   });
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const categories = type === 'income' ? INCOME_TYPES : EXPENSE_CATEGORIES;
   const title = type === 'income' ? 'Adicionar Receita' : 'Adicionar Despesa';
@@ -39,7 +40,6 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
     if (!user) return;
 
-    // 🔹 Corrigindo para salvar com hora "meio-dia" (evita problema de UTC -3 cair no dia anterior)
     const normalizedDate = `${formData.date}T12:00:00`;
 
     const ok = await saveTransaction({
@@ -47,7 +47,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
       type,
       amount,
       category: formData.category,
-      date: normalizedDate
+      date: normalizedDate,
     });
 
     if (!ok) {
@@ -57,10 +57,6 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
 
     await onSave();
     onBack();
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -83,6 +79,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
         )}
 
         <div className="space-y-6">
+          {/* Valor */}
           <div>
             <label className="block text-violet-500 mb-2 font-medium">
               Valor (R$)
@@ -91,7 +88,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
               type="number"
               name="amount"
               value={formData.amount}
-              onChange={handleChange}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               step="0.01"
               min="0"
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
@@ -99,25 +96,42 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
             />
           </div>
 
-          <div>
+          {/* Categoria com barra de busca */}
+          <div className="relative">
             <label className="block text-violet-500 mb-2 font-medium">
               {type === 'income' ? 'Tipo' : 'Categoria'}
             </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
+            <input
+              type="text"
+              value={searchTerm || formData.category}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar ou selecionar categoria..."
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
-            >
-              <option value="">Selecione uma opção</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              autoComplete="off"
+            />
+            {searchTerm && (
+              <ul className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
+                {categories
+                  .filter((cat) =>
+                    cat.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((cat) => (
+                    <li
+                      key={cat}
+                      onClick={() => {
+                        setFormData({ ...formData, category: cat });
+                        setSearchTerm('');
+                      }}
+                      className="px-4 py-2 cursor-pointer hover:bg-violet-600 transition-colors"
+                    >
+                      {cat}
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
 
+          {/* Data */}
           <div>
             <label className="block text-violet-500 mb-2 font-medium">
               Data
@@ -126,12 +140,15 @@ const AddTransaction: React.FC<AddTransactionProps> = ({ type, onBack, onSave })
               type="date"
               name="date"
               value={formData.date}
-              onChange={handleChange}
+              onChange={(e) =>
+                setFormData({ ...formData, date: e.target.value })
+              }
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
             />
           </div>
         </div>
 
+        {/* Botão Salvar */}
         <button
           type="submit"
           className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300 flex items-center justify-center"
