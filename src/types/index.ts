@@ -22,14 +22,31 @@ export interface AuthContextType {
   logout: () => void;
 }
 
+/** 🟢 RECEITAS */
 export const INCOME_TYPES = [
   'Salário',
   'Horas Extras',
   'Renda Extra',
   'Comissões',
+  '13º Salário',
+  'Férias',
+  'Restituição do Imposto de Renda',
+  'Aluguel Recebido',
+  'Dividendos de Ações',
+  'Rendimentos de Investimentos',
+  'Juros sobre Poupança',
+  'Cashback',
+  'Venda de Produtos',
+  'Freelas / Serviços',
+  'Aposentadoria / Pensão',
+  'Benefícios Governamentais (Auxílio, Bolsa Família)',
+  'Prêmios / Loterias',
+  'Reembolso de Empresa',
+  'Venda de Bens',
   'Outros'
 ];
 
+/** 🔴 DESPESAS */
 export const EXPENSE_CATEGORIES = [
   // 🏠 Moradia
   'Aluguel',
@@ -44,7 +61,9 @@ export const EXPENSE_CATEGORIES = [
   'TV a Cabo / Streaming',
   'Seguro Residencial',
   'Manutenção da Casa',
-  
+  'Compra de Móveis',
+  'Reformas',
+
   // 🛒 Alimentação
   'Supermercado',
   'Açougue',
@@ -56,7 +75,9 @@ export const EXPENSE_CATEGORIES = [
   'Cafeteria',
   'Sorveteria',
   'Fast Food',
-  
+  'Água Mineral / Galão',
+  'Doces e Guloseimas',
+
   // 🚗 Transporte e Mobilidade
   'Abastecimento (Gasolina, Etanol, Diesel)',
   'Manutenção Veicular',
@@ -69,7 +90,9 @@ export const EXPENSE_CATEGORIES = [
   'Aplicativos de Mobilidade (Uber, 99)',
   'Oficina Mecânica',
   'Lava-rápido',
-  
+  'Multas de Trânsito',
+  'Lavagem Técnica',
+
   // 👨‍👩‍👧‍👦 Despesas Familiares
   'Escola / Faculdade',
   'Material Escolar',
@@ -78,7 +101,10 @@ export const EXPENSE_CATEGORIES = [
   'Creche / Babá',
   'Mesada dos Filhos',
   'Presentes para Familiares',
-  
+  'Mesada',
+  'Atividades Extracurriculares',
+  'Recreação Infantil',
+
   // 🧾 Contas e Serviços
   'Cartão de Crédito',
   'Empréstimos / Financiamentos',
@@ -87,7 +113,9 @@ export const EXPENSE_CATEGORIES = [
   'Juros e Multas',
   'Seguros Diversos',
   'Assinaturas Online',
-  
+  'Consultoria / Serviços Profissionais',
+  'Mensalidades',
+
   // 🩺 Saúde e Bem-Estar
   'Plano de Saúde',
   'Farmácia / Medicamentos',
@@ -97,7 +125,10 @@ export const EXPENSE_CATEGORIES = [
   'Academia / Personal Trainer',
   'Terapias',
   'Ótica',
-  
+  'Psicólogo',
+  'Suplementos',
+  'Fisioterapia',
+
   // 👕 Roupas e Estilo
   'Roupas',
   'Calçados',
@@ -105,7 +136,9 @@ export const EXPENSE_CATEGORIES = [
   'Salão de Beleza / Barbearia',
   'Cosméticos / Perfumes',
   'Joias e Relógios',
-  
+  'Unhas / Manicure / Pedicure',
+  'Maquiagem',
+
   // 🎉 Lazer e Entretenimento
   'Cinema',
   'Shows / Teatros',
@@ -116,14 +149,18 @@ export const EXPENSE_CATEGORIES = [
   'Parques / Zoológico / Museus',
   'Jogos Online / Videogame',
   'Eventos Esportivos',
-  
+  'Livros / HQs',
+  'Streaming / Música',
+
   // 🐾 Animais de Estimação
   'Ração',
   'Pet Shop',
   'Veterinário',
   'Brinquedos para Pets',
-  
-  // 🎁 Compras e Outros
+  'Banho e Tosa',
+  'Remédios para Pets',
+
+  // 🛍️ Compras e Outros
   'Eletrodomésticos',
   'Eletrônicos',
   'Móveis',
@@ -131,20 +168,24 @@ export const EXPENSE_CATEGORIES = [
   'Papelaria',
   'Presentes',
   'Flores',
-  
+  'Marketplace (Shopee, Amazon, etc.)',
+
   // 💼 Obrigações e Impostos
   'INSS',
   'Imposto de Renda',
   'Taxas Governamentais',
   'Contribuições Sindicais',
-  
+  'Taxas de Licenciamento',
+  'Certidões / Documentações',
+
   // 🔧 Outros Gastos Extras
-  'Multas de Trânsito',
   'Gorjetas',
   'Doações / Contribuições Religiosas',
   'Serviços de Entrega / Correios',
   'Assinaturas de Revistas / Jornais',
   'Manutenção de Equipamentos',
   'Despesas Jurídicas / Advogados',
+  'Mensalidade do Clube',
+  'Cursos Online / Educação',
   'Outros'
 ];
