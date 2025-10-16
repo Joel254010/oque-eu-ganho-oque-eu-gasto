@@ -1,49 +1,49 @@
-// src/pages/Register.tsx
-import React, { useState } from 'react';
-import { ArrowLeft, User, Mail, Lock } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { ArrowLeft, User, Mail, Lock } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface RegisterProps {
-  onNavigate: (page: 'welcome' | 'login') => void;
+  onNavigate: (page: "welcome" | "login") => void;
 }
 
 const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { register } = useAuth();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError('Todos os campos são obrigatórios');
+      setError(t("registerErrorEmptyFields"));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('As senhas não coincidem');
+      setError(t("registerErrorPasswordMismatch"));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
+      setError(t("registerErrorPasswordLength"));
       return;
     }
 
-    // 🔹 Inclui também o nome no cadastro
     const result = await register(formData.email, formData.password, formData.name);
 
     if (result.success) {
-      alert('Cadastro realizado! Confirme seu cadastro no seu e-mail antes de acessar.');
-      onNavigate('login');
+      alert(t("registerSuccess"));
+      onNavigate("login");
     } else {
-      setError(result.error || 'Este e-mail já está cadastrado');
+      setError(result.error || t("registerErrorEmailExists"));
     }
   };
 
@@ -53,16 +53,20 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col p-6">
+      {/* Topbar */}
       <div className="flex items-center mb-8">
         <button
-          onClick={() => onNavigate('welcome')}
+          onClick={() => onNavigate("welcome")}
           className="text-brand hover:text-brand-dark transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-brand ml-4">Criar Conta</h1>
+        <h1 className="text-2xl font-bold text-brand ml-4">
+          {t("createAccount")}
+        </h1>
       </div>
 
+      {/* Formulário */}
       <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
         {error && (
           <div className="bg-red-500/20 border border-red-500 text-red-500 p-3 rounded-lg mb-6">
@@ -74,7 +78,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
           <div>
             <label className="block text-brand mb-2 font-medium">
               <User className="w-4 h-4 inline mr-2" />
-              Nome
+              {t("name")}
             </label>
             <input
               type="text"
@@ -82,14 +86,14 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               value={formData.name}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Digite seu nome"
+              placeholder={t("namePlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-brand mb-2 font-medium">
               <Mail className="w-4 h-4 inline mr-2" />
-              E-mail
+              {t("email")}
             </label>
             <input
               type="email"
@@ -97,14 +101,14 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               value={formData.email}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Digite seu e-mail"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
-              Senha
+              {t("password")}
             </label>
             <input
               type="password"
@@ -112,14 +116,14 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               value={formData.password}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Digite sua senha"
+              placeholder={t("passwordPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
-              Confirmar Senha
+              {t("confirmPassword")}
             </label>
             <input
               type="password"
@@ -127,7 +131,7 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Confirme sua senha"
+              placeholder={t("confirmPasswordPlaceholder")}
             />
           </div>
         </div>
@@ -136,23 +140,24 @@ const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
           type="submit"
           className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
         >
-          Criar Conta
+          {t("createAccount")}
         </button>
 
         <p className="text-center mt-6 text-gray-400">
-          Já tem uma conta?{' '}
+          {t("alreadyAccount")}{" "}
           <button
             type="button"
-            onClick={() => onNavigate('login')}
+            onClick={() => onNavigate("login")}
             className="text-brand hover:text-brand-dark font-medium"
           >
-            Fazer login
+            {t("login")}
           </button>
         </p>
       </form>
 
+      {/* Rodapé */}
       <footer className="text-center text-brand mt-6">
-        Mais um produto exclusivo da My GlobyX 🚀
+        {t("footerText")} <span className="font-bold">My GlobyX 🚀</span>
       </footer>
     </div>
   );

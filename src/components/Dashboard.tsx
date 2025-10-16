@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   LogOut,
   Plus,
@@ -9,25 +9,31 @@ import {
   Trash2,
   Eye,
   EyeOff,
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { Transaction } from '../types';
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { Transaction } from "../types";
 import {
   getTransactions,
   calculateBalance,
   formatCurrency,
   deleteTransaction,
   updateTransaction,
-} from '../utils/storage';
-import AddTransaction from './AddTransaction';
-import Reports from './Reports';
+} from "../utils/storage";
+import AddTransaction from "./AddTransaction";
+import Reports from "./Reports";
+import { useTranslation } from "react-i18next";
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [currentView, setCurrentView] = useState<'dashboard' | 'add-income' | 'add-expense' | 'reports'>('dashboard');
+  const { t } = useTranslation();
+
+  const [currentView, setCurrentView] = useState<
+    "dashboard" | "add-income" | "add-expense" | "reports"
+  >("dashboard");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState(0);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
   const [newAmount, setNewAmount] = useState<string>("");
   const [showBalance, setShowBalance] = useState<boolean>(false);
 
@@ -40,14 +46,17 @@ const Dashboard: React.FC = () => {
   const refreshTransactions = async () => {
     if (user) {
       const userTransactions = await getTransactions(user.id);
-      const sortedTransactions = userTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const sortedTransactions = userTransactions.sort(
+        (a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
       setTransactions(sortedTransactions);
       setBalance(calculateBalance(userTransactions));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Tem certeza que deseja apagar esta transação?")) {
+    if (window.confirm(t("confirmDelete"))) {
       const ok = await deleteTransaction(user!.id, id);
       if (ok) await refreshTransactions();
     }
@@ -70,26 +79,40 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  if (currentView === 'add-income') {
-    return <AddTransaction type="income" onBack={() => setCurrentView('dashboard')} onSave={refreshTransactions} />;
+  if (currentView === "add-income") {
+    return (
+      <AddTransaction
+        type="income"
+        onBack={() => setCurrentView("dashboard")}
+        onSave={refreshTransactions}
+      />
+    );
   }
 
-  if (currentView === 'add-expense') {
-    return <AddTransaction type="expense" onBack={() => setCurrentView('dashboard')} onSave={refreshTransactions} />;
+  if (currentView === "add-expense") {
+    return (
+      <AddTransaction
+        type="expense"
+        onBack={() => setCurrentView("dashboard")}
+        onSave={refreshTransactions}
+      />
+    );
   }
 
-  if (currentView === 'reports') {
-    return <Reports onBack={() => setCurrentView('dashboard')} />;
+  if (currentView === "reports") {
+    return <Reports onBack={() => setCurrentView("dashboard")} />;
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Header */}
       <div className="flex justify-between items-center p-6 border-b border-gray-800">
         <div>
           <h1 className="text-xl font-bold text-brand">
-            Olá, {user?.name || user?.email || "visitante"}!
+            {t("hello")},{" "}
+            {user?.name || user?.email || t("guest")}!
           </h1>
-          <p className="text-gray-400 text-sm">Seu controle financeiro</p>
+          <p className="text-gray-400 text-sm">{t("yourFinanceControl")}</p>
         </div>
         <button
           onClick={logout}
@@ -99,58 +122,98 @@ const Dashboard: React.FC = () => {
         </button>
       </div>
 
+      {/* Balance */}
       <div className="p-6">
         <div className="bg-brand rounded-2xl p-6 text-center relative">
-          <p className="text-white/80 text-sm uppercase tracking-wide mb-2">Saldo Atual</p>
+          <p className="text-white/80 text-sm uppercase tracking-wide mb-2">
+            {t("currentBalance")}
+          </p>
           <p className="text-white text-3xl font-bold">
-            {showBalance ? formatCurrency(balance) : '********'}
+            {showBalance ? formatCurrency(balance) : "********"}
           </p>
           <button
             onClick={() => setShowBalance(!showBalance)}
             className="absolute top-4 right-4 text-white/70 hover:text-white"
             aria-label="Toggle saldo"
           >
-            {showBalance ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            {showBalance ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
           </button>
         </div>
       </div>
 
+      {/* Buttons */}
       <div className="px-6 space-y-4">
-        <button onClick={() => setCurrentView('add-income')} className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
-          <TrendingUp className="w-5 h-5 mr-2" /> Adicionar Receita
+        <button
+          onClick={() => setCurrentView("add-income")}
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
+        >
+          <TrendingUp className="w-5 h-5 mr-2" /> {t("addIncome")}
         </button>
-        <button onClick={() => setCurrentView('add-expense')} className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
-          <TrendingDown className="w-5 h-5 mr-2" /> Adicionar Despesa
+        <button
+          onClick={() => setCurrentView("add-expense")}
+          className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
+        >
+          <TrendingDown className="w-5 h-5 mr-2" /> {t("addExpense")}
         </button>
-        <button onClick={() => setCurrentView('reports')} className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
-          <BarChart3 className="w-5 h-5 mr-2" /> Ver Relatórios
+        <button
+          onClick={() => setCurrentView("reports")}
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center"
+        >
+          <BarChart3 className="w-5 h-5 mr-2" /> {t("viewReports")}
         </button>
       </div>
 
+      {/* Transactions list */}
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-brand mb-4">Últimas Transações</h2>
+        <h2 className="text-lg font-semibold text-brand mb-4">
+          {t("recentTransactions")}
+        </h2>
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Plus className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>Nenhuma transação encontrada</p>
-            <p className="text-sm">Comece adicionando uma receita ou despesa</p>
+            <p>{t("noTransactions")}</p>
+            <p className="text-sm">{t("addFirstTransaction")}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {transactions.slice(0, 5).map((transaction) => (
-              <div key={transaction.id} className="bg-gray-900 rounded-lg p-4 flex justify-between items-center">
+              <div
+                key={transaction.id}
+                className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
+              >
                 <div>
-                  <p className="text-white font-medium">{transaction.category}</p>
-                  <p className="text-gray-400 text-sm">{new Date(transaction.date).toLocaleDateString('pt-BR')}</p>
+                  <p className="text-white font-medium">
+                    {transaction.category}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    {new Date(transaction.date).toLocaleDateString()}
+                  </p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <p className={`font-bold ${transaction.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>
-                    {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
+                  <p
+                    className={`font-bold ${
+                      transaction.type === "income"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {transaction.type === "income" ? "+" : "-"}{" "}
+                    {formatCurrency(transaction.amount)}
                   </p>
-                  <button onClick={() => handleEdit(transaction)} className="text-blue-400 hover:text-blue-600">
+                  <button
+                    onClick={() => handleEdit(transaction)}
+                    className="text-blue-400 hover:text-blue-600"
+                  >
                     <Pencil className="w-5 h-5" />
                   </button>
-                  <button onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:text-red-600">
+                  <button
+                    onClick={() => handleDelete(transaction.id)}
+                    className="text-red-400 hover:text-red-600"
+                  >
                     <Trash2 className="w-5 h-5" />
                   </button>
                 </div>
@@ -160,10 +223,11 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
+      {/* Edit Modal */}
       {editingTransaction && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-96 text-black">
-            <h2 className="text-xl font-bold mb-4">Editar Transação</h2>
+            <h2 className="text-xl font-bold mb-4">{t("editTransaction")}</h2>
             <input
               type="number"
               value={newAmount}
@@ -171,19 +235,26 @@ const Dashboard: React.FC = () => {
               className="w-full border p-2 mb-4"
             />
             <div className="flex justify-end space-x-2">
-              <button onClick={() => setEditingTransaction(null)} className="px-4 py-2 bg-gray-300 rounded">
-                Cancelar
+              <button
+                onClick={() => setEditingTransaction(null)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                {t("cancel")}
               </button>
-              <button onClick={handleSaveEdit} className="px-4 py-2 bg-brand text-white rounded">
-                Salvar
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-brand text-white rounded"
+              >
+                {t("save")}
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Footer */}
       <footer className="text-center text-brand p-6">
-        Mais um produto exclusivo da My GlobyX 🚀
+        {t("footerText")} <span className="font-bold">My GlobyX 🚀</span>
       </footer>
     </div>
   );

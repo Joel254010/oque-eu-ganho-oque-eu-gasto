@@ -1,26 +1,27 @@
-// src/pages/Login.tsx
-import React, { useState } from 'react';
-import { ArrowLeft, Mail, Lock } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import { ArrowLeft, Mail, Lock } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface LoginProps {
-  onNavigate: (page: 'welcome' | 'register') => void;
+  onNavigate: (page: "welcome" | "register") => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.email || !formData.password) {
-      setError('Todos os campos são obrigatórios');
+      setError(t("loginErrorEmptyFields"));
       return;
     }
 
@@ -28,14 +29,14 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       const result = await login(formData.email, formData.password);
 
       if (!result.success) {
-        setError('E-mail ou senha incorretos');
+        setError(t("loginErrorInvalid"));
         return;
       }
 
       // ✅ Login bem-sucedido, AuthContext cuida da sessão
     } catch (err) {
       console.error(err);
-      setError('Erro inesperado. Tente novamente mais tarde.');
+      setError(t("loginErrorUnexpected"));
     }
   };
 
@@ -45,16 +46,18 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col p-6">
+      {/* Topbar */}
       <div className="flex items-center mb-8">
         <button
-          onClick={() => onNavigate('welcome')}
+          onClick={() => onNavigate("welcome")}
           className="text-brand hover:text-brand-dark transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-brand ml-4">Entrar</h1>
+        <h1 className="text-2xl font-bold text-brand ml-4">{t("login")}</h1>
       </div>
 
+      {/* Formulário */}
       <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
         {error && (
           <div className="bg-red-500/20 border border-red-500 text-red-500 p-3 rounded-lg mb-6">
@@ -66,7 +69,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
           <div>
             <label className="block text-brand mb-2 font-medium">
               <Mail className="w-4 h-4 inline mr-2" />
-              E-mail
+              {t("email")}
             </label>
             <input
               type="email"
@@ -74,14 +77,14 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               value={formData.email}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Digite seu e-mail"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-brand mb-2 font-medium">
               <Lock className="w-4 h-4 inline mr-2" />
-              Senha
+              {t("password")}
             </label>
             <input
               type="password"
@@ -89,7 +92,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               value={formData.password}
               onChange={handleChange}
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-brand focus:outline-none transition-colors"
-              placeholder="Digite sua senha"
+              placeholder={t("passwordPlaceholder")}
             />
           </div>
         </div>
@@ -98,23 +101,24 @@ const Login: React.FC<LoginProps> = ({ onNavigate }) => {
           type="submit"
           className="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 px-6 rounded-lg mt-8 transition-colors duration-300"
         >
-          Entrar
+          {t("login")}
         </button>
 
         <p className="text-center mt-6 text-gray-400">
-          Não tem uma conta?{' '}
+          {t("noAccount")}{" "}
           <button
             type="button"
-            onClick={() => onNavigate('register')}
+            onClick={() => onNavigate("register")}
             className="text-brand hover:text-brand-dark font-medium"
           >
-            Criar conta
+            {t("createAccount")}
           </button>
         </p>
       </form>
 
+      {/* Rodapé */}
       <footer className="text-center text-brand mt-6">
-        Mais um produto exclusivo da My GlobyX 🚀
+        {t("footerText")} <span className="font-bold">My GlobyX 🚀</span>
       </footer>
     </div>
   );
