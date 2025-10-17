@@ -16,6 +16,7 @@ export interface Transaction {
   category: string;
   date: string;
   createdAt: string;
+  currency?: string; // ✅ NOVO CAMPO — CÓDIGO DA MOEDA (ex: "USD", "BRL", "EUR")
 }
 
 export interface AuthContextType {
