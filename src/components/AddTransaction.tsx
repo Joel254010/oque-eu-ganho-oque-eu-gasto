@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { saveTransaction } from "../utils/storage";
 import { INCOME_TYPES, EXPENSE_CATEGORIES } from "../types";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 interface AddTransactionProps {
   type: "income" | "expense";
@@ -17,7 +18,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   onSave,
 }) => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [formData, setFormData] = useState({
     amount: "",
@@ -27,7 +28,16 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const categories = type === "income" ? INCOME_TYPES : EXPENSE_CATEGORIES;
+  // 🔁 Atualiza as categorias conforme idioma
+  const categories = useMemo(() => {
+    const base =
+      type === "income" ? INCOME_TYPES : EXPENSE_CATEGORIES;
+    return base.map((key) => {
+      const translation = i18next.t(key);
+      return translation !== key ? translation : key;
+    });
+  }, [type, i18n.language]);
+
   const title =
     type === "income" ? t("addIncome") : t("addExpense");
 

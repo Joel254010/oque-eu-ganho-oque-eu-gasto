@@ -10,32 +10,34 @@ const Welcome: React.FC<WelcomeProps> = ({ onNavigate }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex flex-col items-center justify-center p-6">
-      <div className="text-center max-w-md w-full">
-        {/* Ícone em destaque */}
-        <div className="mb-8 flex justify-center">
-          <div className="bg-violet-600 p-6 rounded-2xl shadow-lg shadow-violet-500/30">
+    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-gradient-to-b from-black via-gray-900 to-black text-white relative overflow-hidden">
+      {/* Container principal */}
+      <div className="flex flex-col items-center justify-center text-center max-w-md w-full px-6 py-10 bg-transparent rounded-3xl">
+        {/* Ícone */}
+        <div className="mb-8 flex justify-center animate-fade-in">
+          <div className="bg-violet-600 p-6 rounded-2xl shadow-lg shadow-violet-500/40">
             <Wallet className="w-12 h-12 text-white" />
           </div>
         </div>
 
-        {/* Headline estilo Nubank */}
-        <h1 className="text-4xl font-extrabold text-violet-400 mb-2">
+        {/* Título */}
+        <h1 className="text-4xl font-extrabold text-violet-400 mb-1 drop-shadow-[0_0_8px_rgba(167,139,250,0.5)]">
           {t("welcomeTitle1")}
         </h1>
-        <h1 className="text-4xl font-extrabold text-white mb-4">
+        <h1 className="text-4xl font-extrabold text-white mb-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">
           {t("welcomeTitle2")}
         </h1>
 
-        <p className="text-gray-400 text-lg leading-relaxed mb-8">
+        {/* Subtítulo */}
+        <p className="text-gray-400 text-lg leading-relaxed mb-10">
           {t("welcomeSubtitle")}
         </p>
 
         {/* Botões */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <button
             onClick={() => onNavigate("login")}
-            className="w-full bg-gradient-to-r from-violet-600 to-violet-800 hover:opacity-90 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-violet-500/30 transition duration-300"
+            className="w-full bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-500 hover:to-violet-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-violet-500/30 transition duration-300"
           >
             {t("login")}
           </button>
@@ -49,10 +51,12 @@ const Welcome: React.FC<WelcomeProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="absolute bottom-6 text-center text-violet-400">
-        {t("footerText")}{" "}
-        <span className="font-bold">My GlobyX 🚀</span>
+      {/* Rodapé fixo ajustado */}
+      <footer className="w-full text-center text-violet-400 mt-16 pb-6">
+        <p className="text-sm sm:text-base">
+          {t("footerText")}{" "}
+          <span className="font-bold text-violet-300">My GlobyX 🚀</span>
+        </p>
       </footer>
     </div>
   );
