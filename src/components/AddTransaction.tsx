@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import { saveTransaction } from "../utils/storage";
 import { INCOME_TYPES, EXPENSE_CATEGORIES } from "../types";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 
 interface AddTransactionProps {
   type: "income" | "expense";
@@ -28,19 +27,18 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 🔁 Atualiza as categorias conforme idioma
+  /**
+   * 🧩 Atualiza dinamicamente as categorias conforme o idioma atual
+   * e o tipo selecionado (income / expense)
+   */
   const categories = useMemo(() => {
-    const base =
-      type === "income" ? INCOME_TYPES : EXPENSE_CATEGORIES;
-    return base.map((key) => {
-      const translation = i18next.t(key);
-      return translation !== key ? translation : key;
-    });
-  }, [type, i18n.language]);
+    const base = type === "income" ? INCOME_TYPES : EXPENSE_CATEGORIES;
+    return base.map((key) => t(key)); // tradução reativa
+  }, [type, i18n.language, t]);
 
-  const title =
-    type === "income" ? t("addIncome") : t("addExpense");
+  const title = type === "income" ? t("addIncome") : t("addExpense");
 
+  /** ✅ Envio do formulário */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -87,9 +85,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-2xl font-bold text-violet-500 ml-4">
-          {title}
-        </h1>
+        <h1 className="text-2xl font-bold text-violet-500 ml-4">{title}</h1>
       </div>
 
       {/* Formulário */}
@@ -133,6 +129,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
               className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none transition-colors"
               autoComplete="off"
             />
+
             {searchTerm && (
               <ul className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
                 {categories
@@ -182,6 +179,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         </button>
       </form>
 
+      {/* Rodapé */}
       <footer className="text-center text-violet-500 mt-6">
         {t("footerText")} <span className="font-bold">My GlobyX 🚀</span>
       </footer>
