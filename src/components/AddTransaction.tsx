@@ -216,40 +216,43 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
         )}
 
         <div className="space-y-6">
-          {/* Valor + Seletor de Moeda */}
+          {/* 🔹 Seletor de Moeda */}
           <div>
             <label className="block text-violet-500 mb-2 font-medium">
               {t("value")} ({selectedCurrency.symbol})
             </label>
-            <div className="flex gap-3">
-              <select
-                value={selectedCurrency.code}
-                onChange={(e) =>
-                  setSelectedCurrency(
-                    CURRENCIES.find((c) => c.code === e.target.value) || CURRENCIES[0]
-                  )
-                }
-                className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-3 text-white focus:border-violet-500 focus:outline-none"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.symbol} - {c.name} ({c.code})
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
-                }
-                step="0.01"
-                min="0"
-                className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none"
-                placeholder="0.00"
-              />
-            </div>
+            <select
+              value={selectedCurrency.code}
+              onChange={(e) =>
+                setSelectedCurrency(
+                  CURRENCIES.find((c) => c.code === e.target.value) ||
+                    CURRENCIES[0]
+                )
+              }
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-3 text-white focus:border-violet-500 focus:outline-none"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.symbol} - {c.name} ({c.code})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 🔹 Valor abaixo da moeda */}
+          <div>
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={(e) =>
+                setFormData({ ...formData, amount: e.target.value })
+              }
+              step="0.01"
+              min="0"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none"
+              placeholder="0.00"
+            />
           </div>
 
           {/* Categoria */}
