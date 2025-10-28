@@ -1,3 +1,4 @@
+// src/components/Dashboard.tsx
 import React, { useState, useEffect } from "react";
 import {
   LogOut,
@@ -15,7 +16,7 @@ import { Transaction } from "../types";
 import {
   getTransactions,
   calculateBalance,
-  formatCurrency,
+  formatCurrency, // mantém para o saldo (BRL, como já era)
   deleteTransaction,
   updateTransaction,
 } from "../utils/storage";
@@ -23,17 +24,23 @@ import AddTransaction from "./AddTransaction";
 import Reports from "./Reports";
 import { useTranslation } from "react-i18next";
 
+/** Tipagem local para permitir description/currency opcionais sem quebrar o projeto */
+type TxWithExtras = Transaction & {
+  description?: string;
+  currency?: string;
+};
+
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [currentView, setCurrentView] = useState<
     "dashboard" | "add-income" | "add-expense" | "reports"
   >("dashboard");
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TxWithExtras[]>([]);
   const [balance, setBalance] = useState(0);
   const [editingTransaction, setEditingTransaction] =
-    useState<Transaction | null>(null);
+    useState<TxWithExtras | null>(null);
   const [newAmount, setNewAmount] = useState<string>("");
   const [showBalance, setShowBalance] = useState<boolean>(false);
 
@@ -41,18 +48,17 @@ const Dashboard: React.FC = () => {
     if (user) {
       refreshTransactions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const refreshTransactions = async () => {
-    if (user) {
-      const userTransactions = await getTransactions(user.id);
-      const sortedTransactions = userTransactions.sort(
-        (a, b) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      setTransactions(sortedTransactions);
-      setBalance(calculateBalance(userTransactions));
-    }
+    if (!user) return;
+    const userTransactions = (await getTransactions(user.id)) as TxWithExtras[];
+    const sortedTransactions = userTransactions.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    setTransactions(sortedTransactions);
+    setBalance(calculateBalance(userTransactions));
   };
 
   const handleDelete = async (id: string) => {
@@ -62,7 +68,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleEdit = (transaction: Transaction) => {
+  const handleEdit = (transaction: TxWithExtras) => {
     setEditingTransaction(transaction);
     setNewAmount(transaction.amount.toString());
   };
@@ -72,12 +78,30 @@ const Dashboard: React.FC = () => {
       const ok = await updateTransaction(user!.id, {
         ...editingTransaction,
         amount: parseFloat(newAmount),
-      });
+      } as Transaction);
       if (ok) await refreshTransactions();
       setEditingTransaction(null);
       setNewAmount("");
     }
   };
+
+  /** Formatação por moeda/idioma para os itens (mantém saldo como antes em BRL) */
+  const localeMap: Record<string, string> = {
+    "pt-BR": "pt-BR",
+    pt: "pt-BR",
+    en: "en-US",
+    "en-US": "en-US",
+    es: "es-ES",
+    "es-ES": "es-ES",
+    fr: "fr-FR",
+    "fr-FR": "fr-FR",
+  };
+  const currentLocale = localeMap[i18n.language] || "pt-BR";
+  const formatByTxCurrency = (value: number, currency?: string) =>
+    new Intl.NumberFormat(currentLocale, {
+      style: "currency",
+      currency: currency || "BRL",
+    }).format(value);
 
   if (currentView === "add-income") {
     return (
@@ -109,8 +133,7 @@ const Dashboard: React.FC = () => {
       <div className="flex justify-between items-center p-6 border-b border-gray-800">
         <div>
           <h1 className="text-xl font-bold text-brand">
-            {t("hello")},{" "}
-            {user?.name || user?.email || t("guest")}!
+            {t("hello")}, {user?.name || user?.email || t("guest")}!
           </h1>
           <p className="text-gray-400 text-sm">{t("yourFinanceControl")}</p>
         </div>
@@ -180,38 +203,46 @@ const Dashboard: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {transactions.slice(0, 5).map((transaction) => (
+            {transactions.slice(0, 5).map((tx) => (
               <div
-                key={transaction.id}
+                key={tx.id}
                 className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
               >
                 <div>
-                  <p className="text-white font-medium">
-                    {transaction.category}
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    {new Date(transaction.date).toLocaleDateString()}
+                  {/* Categoria */}
+                  <p className="text-white font-medium">{tx.category}</p>
+
+                  {/* ✅ Observação (se houver) */}
+                  {tx.description && (
+                    <p className="text-gray-400 text-sm mt-1">
+                      {tx.description}
+                    </p>
+                  )}
+
+                  {/* Data */}
+                  <p className="text-gray-500 text-xs mt-1">
+                    {new Date(tx.date).toLocaleDateString()}
                   </p>
                 </div>
+
                 <div className="flex items-center space-x-4">
                   <p
                     className={`font-bold ${
-                      transaction.type === "income"
-                        ? "text-green-500"
-                        : "text-red-500"
+                      tx.type === "income" ? "text-green-500" : "text-red-500"
                     }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}{" "}
-                    {formatCurrency(transaction.amount)}
+                    {tx.type === "income" ? "+ " : "- "}
+                    {formatByTxCurrency(tx.amount, tx.currency)}
                   </p>
+
                   <button
-                    onClick={() => handleEdit(transaction)}
+                    onClick={() => handleEdit(tx)}
                     className="text-blue-400 hover:text-blue-600"
                   >
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(transaction.id)}
+                    onClick={() => handleDelete(tx.id)}
                     className="text-red-400 hover:text-red-600"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -227,7 +258,9 @@ const Dashboard: React.FC = () => {
       {editingTransaction && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-96 text-black">
-            <h2 className="text-xl font-bold mb-4">{t("editTransaction")}</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {t("editTransaction")}
+            </h2>
             <input
               type="number"
               value={newAmount}

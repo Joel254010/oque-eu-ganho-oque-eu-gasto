@@ -1,3 +1,4 @@
+// src/components/Reports.tsx
 import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
@@ -10,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { Transaction } from "../types";
 import {
   calculateBalance,
-  formatCurrency,
+  formatCurrency, // mantém para cards de resumo (BRL como antes)
   getTransactionsByDate,
 } from "../utils/storage";
 import { useTranslation } from "react-i18next";
@@ -21,26 +22,48 @@ import jsPDF from "jspdf";
 // @ts-ignore
 import autoTable from "jspdf-autotable";
 
+/** Tipagem local p/ aceitar description e currency opcionais */
+type TxWithExtras = Transaction & {
+  description?: string;
+  currency?: string;
+};
+
 interface ReportsProps {
   onBack: () => void;
 }
 
 const Reports: React.FC<ReportsProps> = ({ onBack }) => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TxWithExtras[]>([]);
+
+  // Locale p/ moeda por transação
+  const localeMap: Record<string, string> = {
+    "pt-BR": "pt-BR",
+    pt: "pt-BR",
+    en: "en-US",
+    "en-US": "en-US",
+    es: "es-ES",
+    "es-ES": "es-ES",
+    fr: "fr-FR",
+    "fr-FR": "fr-FR",
+  };
+  const currentLocale = localeMap[i18n.language] || "pt-BR";
+  const formatByTxCurrency = (value: number, currency?: string) =>
+    new Intl.NumberFormat(currentLocale, {
+      style: "currency",
+      currency: currency || "BRL",
+    }).format(value);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
-
       const start = startDate || "2000-01-01";
       const end = endDate || new Date().toISOString().split("T")[0];
-
-      const data = await getTransactionsByDate(user.id, start, end);
+      const data = (await getTransactionsByDate(user.id, start, end)) as TxWithExtras[];
       setTransactions(data);
     };
     fetchData();
@@ -54,18 +77,29 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
     .filter((tx) => tx.type === "expense")
     .reduce((sum, tx) => sum + tx.amount, 0);
 
+  // ⚠️ Mantém o balance “agregado” independente da moeda (como já era)
   const balance = calculateBalance(transactions);
 
-  // Exportar CSV
+  // CSV
   const handleExportCSV = () => {
     if (transactions.length === 0) return;
 
-    const header = [t("date"), t("categoryLabel"), t("typeLabel"), t("value")];
+    const header = [
+      t("date"),
+      t("categoryLabel"),
+      t("typeLabel"),
+      t("value"),
+      t("currency") || "Currency",
+      t("observation") || "Observation",
+    ];
+
     const rows = transactions.map((tx) => [
       new Date(tx.date).toLocaleDateString(),
       tx.category,
       tx.type === "income" ? t("income") : t("expense"),
       tx.amount.toFixed(2).replace(".", ","),
+      tx.currency || "BRL",
+      (tx.description || "").replace(/[\r\n]+/g, " "),
     ]);
 
     const csvContent = [header, ...rows].map((r) => r.join(";")).join("\n");
@@ -84,7 +118,7 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
     document.body.removeChild(link);
   };
 
-  // Exportar PDF
+  // PDF
   const handleExportPDF = () => {
     if (transactions.length === 0) return;
 
@@ -101,13 +135,27 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
 
     autoTable(doc, {
       startY: 35,
-      head: [[t("date"), t("categoryLabel"), t("typeLabel"), t("value")]],
+      head: [[
+        t("date"),
+        t("categoryLabel"),
+        t("typeLabel"),
+        t("value"),
+        t("currency") || "Currency",
+        t("observation") || "Observation",
+      ]],
       body: transactions.map((tx) => [
         new Date(tx.date).toLocaleDateString(),
         tx.category,
         tx.type === "income" ? t("income") : t("expense"),
-        formatCurrency(tx.amount),
+        formatByTxCurrency(tx.amount, tx.currency),
+        tx.currency || "BRL",
+        tx.description || "",
       ]),
+      styles: { fontSize: 9 },
+      columnStyles: {
+        5: { cellWidth: 80 }, // Observação mais larga
+      },
+      headStyles: { fillColor: [88, 28, 135] }, // roxo
     });
 
     const finalY = (doc as any).lastAutoTable.finalY + 10;
@@ -192,11 +240,7 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
             </div>
           </div>
 
-          <div
-            className={`${
-              balance >= 0 ? "bg-green-500" : "bg-red-500"
-            } rounded-lg p-4`}
-          >
+          <div className={`${balance >= 0 ? "bg-green-500" : "bg-red-500"} rounded-lg p-4`}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white text-sm font-medium">{t("finalBalance")}</p>
@@ -228,7 +272,7 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
                 key={tx.id}
                 className="bg-gray-900 rounded-lg p-4 flex justify-between items-center"
               >
-                <div className="flex-1">
+                <div className="flex-1 pr-4">
                   <div className="flex items-center justify-between">
                     <p className="text-white font-medium">{tx.category}</p>
                     <p
@@ -236,13 +280,25 @@ const Reports: React.FC<ReportsProps> = ({ onBack }) => {
                         tx.type === "income" ? "text-green-500" : "text-red-500"
                       }`}
                     >
-                      {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
+                      {tx.type === "income" ? "+ " : "- "}
+                      {formatByTxCurrency(tx.amount, tx.currency)}
                     </p>
                   </div>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {new Date(tx.date).toLocaleDateString()}
-                  </p>
+
+                  {/* ✅ Observação/Detalhe, quando houver */}
+                  {tx.description && (
+                    <p className="text-gray-400 text-sm mt-1">{tx.description}</p>
+                  )}
+
+                  {/* Data + moeda */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-gray-500 text-xs">
+                      {new Date(tx.date).toLocaleDateString()}
+                    </p>
+                    <span className="text-gray-400 text-[10px] px-2 py-0.5 border border-gray-700 rounded-full">
+                      {tx.currency || "BRL"}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
