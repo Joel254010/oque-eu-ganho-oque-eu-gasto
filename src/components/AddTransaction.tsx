@@ -147,6 +147,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
     amount: "",
     category: "",
     date: new Date().toISOString().split("T")[0],
+    details: "", // 🆕 detalhe livre
   });
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
   const [error, setError] = useState("");
@@ -183,6 +184,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       category: formData.category,
       date: `${formData.date}T12:00:00`,
       currency: selectedCurrency.code,
+      details: formData.details?.trim() || undefined, // 🆕 envia observação
     });
 
     if (!ok) {
@@ -208,7 +210,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       </div>
 
       {/* Formulário */}
-      <form onSubmit={handleSubmit} className="flex-1 max-w-md mx-auto w-full">
+      <form onSubmit={handleSubmit} className="flex-1 max-w-2xl mx-auto w-full">
         {error && (
           <div className="bg-red-500/20 border border-red-500 text-red-500 p-3 rounded-lg mb-6">
             {error}
@@ -255,39 +257,62 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
             />
           </div>
 
-          {/* Categoria */}
-          <div className="relative">
+          {/* 🔹 Categoria + Detalhe */}
+          <div>
             <label className="block text-violet-500 mb-2 font-medium">
               {type === "income" ? t("typeLabel") : t("categoryLabel")}
             </label>
-            <input
-              type="text"
-              value={searchTerm || formData.category}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={t("searchCategory")}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none"
-              autoComplete="off"
-            />
-            {searchTerm && (
-              <ul className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
-                {categories
-                  .filter((cat) =>
-                    cat.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((cat) => (
-                    <li
-                      key={cat}
-                      onClick={() => {
-                        setFormData({ ...formData, category: cat });
-                        setSearchTerm("");
-                      }}
-                      className="px-4 py-2 cursor-pointer hover:bg-violet-600 transition-colors"
-                    >
-                      {cat}
-                    </li>
-                  ))}
-              </ul>
-            )}
+
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Busca/seleção da categoria */}
+              <div className="relative md:flex-1">
+                <input
+                  type="text"
+                  value={searchTerm || formData.category}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={t("searchCategory")}
+                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none"
+                  autoComplete="off"
+                />
+                {searchTerm && (
+                  <ul className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
+                    {categories
+                      .filter((cat) =>
+                        cat.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((cat) => (
+                        <li
+                          key={cat}
+                          onClick={() => {
+                            setFormData({ ...formData, category: cat });
+                            setSearchTerm("");
+                          }}
+                          className="px-4 py-2 cursor-pointer hover:bg-violet-600 transition-colors"
+                        >
+                          {cat}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* 🆕 Campo Detalhe (habilita quando há categoria) */}
+              <input
+                type="text"
+                value={formData.details}
+                onChange={(e) =>
+                  setFormData({ ...formData, details: e.target.value })
+                }
+                placeholder={
+                  t("detailPlaceholder") ||
+                  "Detalhe (ex.: Compra para churrasco)"
+                }
+                className={`bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-violet-500 focus:outline-none md:flex-1 ${
+                  formData.category ? "opacity-100" : "opacity-50"
+                }`}
+                disabled={!formData.category}
+              />
+            </div>
           </div>
 
           {/* Data */}

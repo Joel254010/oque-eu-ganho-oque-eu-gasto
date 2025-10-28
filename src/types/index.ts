@@ -16,7 +16,10 @@ export interface Transaction {
   category: string;
   date: string;
   createdAt: string;
-  currency?: string; // ✅ NOVO CAMPO — CÓDIGO DA MOEDA (ex: "USD", "BRL", "EUR")
+  /** Código ISO-4217 da moeda, ex.: "USD", "BRL", "EUR" */
+  currency?: string;
+  /** Observação/detalhe livre da transação (ex.: “Compra para churrasco”) */
+  details?: string;
 }
 
 export interface AuthContextType {
@@ -50,7 +53,7 @@ export const INCOME_TYPES = [
   "reimbursement",
   "assetSales",
   "other",
-];
+] as const;
 
 /** ================================
  *  🔴 DESPESAS (EXPENSES)
@@ -195,4 +198,4 @@ export const EXPENSE_CATEGORIES = [
   "clubFees",
   "onlineCourses",
   "other",
-];
+] as const;
