@@ -184,7 +184,7 @@ const AddTransaction: React.FC<AddTransactionProps> = ({
       category: formData.category,
       date: `${formData.date}T12:00:00`,
       currency: selectedCurrency.code,
-      details: formData.details?.trim() || undefined, // 🆕 envia observação
+      description: formData.details?.trim() || undefined, // 🆕 envia observação
     });
 
     if (!ok) {

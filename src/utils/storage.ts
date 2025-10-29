@@ -57,8 +57,8 @@ export const saveTransaction = async (
       category: transaction.category,
       amount: transaction.amount,
       date: transaction.date || new Date().toISOString(),
-      currency: transaction.currency || "BRL", // ✅ salva código da moeda
-      details: transaction.details || null, // ✅ salva observação manual
+      currency: transaction.currency || "BRL",     // ✅ salva código da moeda
+      description: transaction.description || "",  // ✅ salva observação manual
     },
   ]);
 
@@ -85,7 +85,7 @@ export const updateTransaction = async (
       amount: updated.amount,
       date: updated.date,
       currency: updated.currency || "BRL",
-      details: updated.details || null,
+      description: updated.description || "",
     })
     .eq("user_id", userId)
     .eq("id", updated.id);

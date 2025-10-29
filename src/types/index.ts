@@ -16,10 +16,12 @@ export interface Transaction {
   category: string;
   date: string;
   createdAt: string;
+
   /** Código ISO-4217 da moeda, ex.: "USD", "BRL", "EUR" */
   currency?: string;
+
   /** Observação/detalhe livre da transação (ex.: “Compra para churrasco”) */
-  details?: string;
+  description?: string; // ✅ padronizado (antes estava "details")
 }
 
 export interface AuthContextType {
