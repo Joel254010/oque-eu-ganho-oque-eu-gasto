@@ -38,6 +38,7 @@
   "cancel": "Annuler",
   "save": "Enregistrer",
   "confirmDelete": "Voulez-vous vraiment supprimer cette transaction ?",
+  "detailPlaceholder": "Détail (ex. : Achat pour barbecue)",
   "value": "Valeur",
   "typeLabel": "Type",
   "categoryLabel": "Catégorie",

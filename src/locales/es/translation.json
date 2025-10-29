@@ -38,6 +38,7 @@
   "cancel": "Cancelar",
   "save": "Guardar",
   "confirmDelete": "¿Estás seguro de eliminar esta transacción?",
+  "detailPlaceholder": "Detalle (ej.: Compra para asado)",
   "value": "Valor",
   "typeLabel": "Tipo",
   "categoryLabel": "Categoría",
